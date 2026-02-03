@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>hypnoread</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -768,9 +768,244 @@
             font-size: 0.85em;
             margin-top: 4px;
         }
+
+        /* Mobile Controls */
+        .mobile-controls {
+            display: none;
+            background: white;
+            border-top: 1px solid #e5e5e5;
+            padding: 15px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 999;
+        }
+
+        .mobile-controls.active {
+            display: block;
+        }
+
+        .mobile-control-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .mobile-control-btn {
+            background: white;
+            border: 1px solid #121212;
+            color: #121212;
+            padding: 15px 10px;
+            font-size: 0.75em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Georgia', serif;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .mobile-control-btn:active {
+            background: #121212;
+            color: white;
+        }
+
+        .mobile-control-btn.primary {
+            background: #121212;
+            color: white;
+            grid-column: span 2;
+        }
+
+        .mobile-control-btn.primary:active {
+            background: #000;
+        }
+
+        /* Landscape Prompt */
+        .landscape-prompt {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #121212;
+            color: white;
+            z-index: 9999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .landscape-prompt.active {
+            display: flex;
+        }
+
+        .landscape-prompt-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            animation: rotate 2s ease-in-out infinite;
+        }
+
+        @keyframes rotate {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(90deg); }
+        }
+
+        .landscape-prompt h2 {
+            font-family: 'Georgia', serif;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .landscape-prompt p {
+            font-size: 1.1em;
+            opacity: 0.8;
+            max-width: 400px;
+        }
+
+        /* Mobile Responsive Adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+            }
+
+            .container {
+                border: none;
+            }
+
+            .upload-section {
+                padding: 40px 20px;
+            }
+
+            .upload-section h1 {
+                font-size: 2em;
+            }
+
+            .word-display {
+                padding: 60px 20px;
+                min-height: 250px;
+            }
+
+            .current-word {
+                font-size: 3em;
+            }
+
+            .word-container {
+                min-width: 100%;
+            }
+
+            .controls {
+                padding: 20px;
+            }
+
+            .chapter-info {
+                padding: 20px;
+            }
+
+            .keyboard-hints {
+                display: none;
+            }
+
+            .chapter-menu-btn,
+            .skip-chapter-btn,
+            .unload-book-btn {
+                padding: 10px 15px;
+                font-size: 0.75em;
+            }
+
+            .unload-book-btn {
+                bottom: 80px;
+            }
+
+            .chapter-modal-content {
+                max-width: 100%;
+                max-height: 95vh;
+                border: none;
+            }
+
+            .chapter-list {
+                padding: 15px;
+            }
+
+            .context-viewer {
+                padding: 20px;
+            }
+
+            .context-text-container {
+                font-size: 1em;
+                padding: 20px;
+                max-height: 300px;
+            }
+
+            .feature-toggles {
+                flex-direction: column;
+            }
+
+            .toggle-item {
+                min-width: 100%;
+            }
+        }
+
+        /* Landscape Mode Specific */
+        @media (max-width: 768px) and (orientation: portrait) {
+            .landscape-prompt {
+                display: flex;
+            }
+            
+            .reader-section.active {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) and (orientation: landscape) {
+            .landscape-prompt {
+                display: none;
+            }
+
+            .word-display {
+                padding: 40px 20px;
+                min-height: 200px;
+            }
+
+            .current-word {
+                font-size: 2.5em;
+            }
+
+            .controls {
+                padding: 15px;
+            }
+
+            .control-row {
+                margin-bottom: 10px;
+                padding-bottom: 10px;
+            }
+
+            .chapter-info {
+                padding: 15px;
+            }
+
+            .chapter-info h2 {
+                font-size: 1.3em;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Landscape Prompt for Mobile -->
+    <div class="landscape-prompt" id="landscapePrompt">
+        <div class="landscape-prompt-icon">📱→📱</div>
+        <h2>Rotate Your Device</h2>
+        <p>For the best reading experience, please use landscape mode</p>
+    </div>
+
     <button class="chapter-menu-btn" id="chapterMenuBtn">Chapters</button>
     <button class="skip-chapter-btn" id="skipChapterBtn">Skip Chapter</button>
     <button class="unload-book-btn" id="unloadBookBtn">Unload Book</button>
@@ -904,6 +1139,16 @@
                     Resume from selected word
                 </button>
             </div>
+
+            <!-- Mobile Touch Controls -->
+            <div class="mobile-controls" id="mobileControls">
+                <div class="mobile-control-grid">
+                    <button class="mobile-control-btn primary" id="mobilePauseBtn">Pause/Resume</button>
+                    <button class="mobile-control-btn" id="mobileSlowBtn">Slow<br>(-25)</button>
+                    <button class="mobile-control-btn" id="mobileFastBtn">Fast<br>(+25)</button>
+                    <button class="mobile-control-btn" id="mobileSkipBtn">Skip<br>Chapter</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -959,6 +1204,11 @@
         const resumeFromHereBtn = document.getElementById('resumeFromHereBtn');
         const variablePacingToggle = document.getElementById('variablePacingToggle');
         const orpToggle = document.getElementById('orpToggle');
+        const mobileControls = document.getElementById('mobileControls');
+        const mobilePauseBtn = document.getElementById('mobilePauseBtn');
+        const mobileSlowBtn = document.getElementById('mobileSlowBtn');
+        const mobileFastBtn = document.getElementById('mobileFastBtn');
+        const mobileSkipBtn = document.getElementById('mobileSkipBtn');
 
         // File upload handling
         uploadArea.addEventListener('click', () => fileInput.click());
@@ -1104,6 +1354,12 @@
             chapterMenuBtn.classList.add('active');
             skipChapterBtn.classList.add('active');
             unloadBookBtn.classList.add('active');
+            
+            // Show mobile controls on mobile devices
+            if (window.innerWidth <= 768) {
+                mobileControls.classList.add('active');
+            }
+            
             renderChapterList();
             updateChapterInfo();
             updateDisplay();
@@ -1204,6 +1460,7 @@
             chapterMenuBtn.classList.remove('active');
             skipChapterBtn.classList.remove('active');
             unloadBookBtn.classList.remove('active');
+            mobileControls.classList.remove('active');
             
             // Close any open modals
             closeChapterMenu();
@@ -1619,6 +1876,18 @@
             // Update current display if not playing
             if (!state.isPlaying && state.currentWordIndex < state.words.length) {
                 updateDisplay();
+            }
+        });
+
+        // Mobile control event listeners
+        mobilePauseBtn.addEventListener('click', togglePause);
+        mobileSlowBtn.addEventListener('click', () => changeSpeed(-25));
+        mobileFastBtn.addEventListener('click', () => changeSpeed(25));
+        mobileSkipBtn.addEventListener('click', () => {
+            if (state.isPaused) {
+                skipChapterWhilePaused();
+            } else {
+                skipChapter();
             }
         });
 
