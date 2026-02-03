@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>hypnoread</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #121212;
+        }
+
+        .container {
+            background: white;
+            border: 1px solid #e5e5e5;
+            max-width: 1000px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .upload-section {
+            padding: 80px 60px;
+            text-align: center;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .upload-section h1 {
+            color: #121212;
+            margin-bottom: 12px;
+            font-size: 2.8em;
+            font-weight: 700;
+            font-family: 'Georgia', serif;
+            letter-spacing: -0.5px;
+        }
+
+        .upload-section p {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+            font-weight: 400;
+        }
+
+        .upload-area {
+            border: 2px solid #121212;
+            padding: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        .upload-area:hover {
+            background: #f0f0f0;
+            border-color: #000;
+        }
+
+        .upload-area.drag-over {
+            background: #e8e8e8;
+            border-color: #000;
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+
+        .upload-area h3 {
+            font-family: 'Georgia', serif;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #121212;
+        }
+
+        .upload-area p {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .reader-section {
+            display: none;
+            padding: 0;
+        }
+
+        .reader-section.active {
+            display: block;
+        }
+
+        .word-display {
+            text-align: center;
+            padding: 100px 40px;
+            min-height: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fafafa;
+            position: relative;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .word-container {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 600px;
+        }
+
+        .current-word {
+            font-size: 4.5em;
+            font-weight: 700;
+            color: #121212;
+            font-family: 'Georgia', serif;
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            position: absolute;
+            white-space: nowrap;
+            letter-spacing: -1px;
+        }
+
+        .current-word .before-orp {
+            opacity: 0.5;
+            text-align: right;
+        }
+
+        .current-word .orp {
+            color: #d32f2f;
+            font-weight: 900;
+            position: relative;
+            z-index: 1;
+        }
+
+        .current-word .after-orp {
+            opacity: 0.5;
+            text-align: left;
+        }
+
+        .orp-marker {
+            position: absolute;
+            width: 2px;
+            height: 100px;
+            background: rgba(0, 0, 0, 0.1);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .controls {
+            background: white;
+            padding: 40px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .control-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .control-row:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .control-label {
+            font-weight: 600;
+            color: #121212;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .control-value {
+            font-size: 1.3em;
+            color: #121212;
+            font-weight: 700;
+            font-family: 'Georgia', serif;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #e5e5e5;
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #121212;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .chapter-info {
+            text-align: center;
+            padding: 30px 40px;
+            background: white;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .chapter-info h2 {
+            color: #121212;
+            margin-bottom: 8px;
+            font-size: 1.8em;
+            font-weight: 700;
+            font-family: 'Georgia', serif;
+            letter-spacing: -0.5px;
+        }
+
+        .chapter-info p {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .keyboard-hints {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1px;
+            background: #e5e5e5;
+            border: 1px solid #e5e5e5;
+        }
+
+        .hint {
+            background: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .hint-key {
+            display: inline-block;
+            background: #121212;
+            color: white;
+            padding: 8px 16px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            font-family: 'Georgia', serif;
+            letter-spacing: 0.5px;
+        }
+
+        .hint-action {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .pause-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            color: #121212;
+            padding: 30px 50px;
+            font-size: 1.2em;
+            font-weight: 700;
+            display: none;
+            letter-spacing: 3px;
+            font-family: 'Georgia', serif;
+            border: 2px solid #121212;
+        }
+
+        .pause-overlay.active {
+            display: block;
+        }
+
+        .chapter-end {
+            display: none;
+            text-align: center;
+            padding: 80px 40px;
+        }
+
+        .chapter-end.active {
+            display: block;
+        }
+
+        .chapter-end h2 {
+            color: #121212;
+            margin-bottom: 20px;
+            font-size: 2em;
+            font-weight: 700;
+            font-family: 'Georgia', serif;
+        }
+
+        .chapter-end p {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        .next-indicator {
+            display: inline-block;
+            background: #121212;
+            color: white;
+            padding: 15px 30px;
+            font-weight: 700;
+            margin-top: 25px;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .error-message {
+            background: #fef0f0;
+            color: #c33;
+            padding: 15px;
+            margin-top: 20px;
+            display: none;
+            border: 1px solid #fcc;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        .chapter-menu-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #121212;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 0.9em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: none;
+            font-family: 'Georgia', serif;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .chapter-menu-btn.active {
+            display: block;
+        }
+
+        .chapter-menu-btn:hover {
+            background: #000;
+        }
+
+        .skip-chapter-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #121212;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 0.9em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: none;
+            font-family: 'Georgia', serif;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .skip-chapter-btn.active {
+            display: block;
+        }
+
+        .skip-chapter-btn:hover {
+            background: #000;
+        }
+
+        .unload-book-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: transparent;
+            color: #666;
+            border: 1px solid #e5e5e5;
+            padding: 10px 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: none;
+            font-family: 'Georgia', serif;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .unload-book-btn.active {
+            display: block;
+        }
+
+        .unload-book-btn:hover {
+            background: #fafafa;
+            border-color: #121212;
+            color: #121212;
+        }
+
+        .chapter-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .chapter-modal.active {
+            display: flex;
+        }
+
+        .chapter-modal-content {
+            background: white;
+            max-width: 700px;
+            width: 100%;
+            max-height: 85vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #121212;
+        }
+
+        .chapter-modal-header {
+            background: #121212;
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #000;
+        }
+
+        .chapter-modal-header h2 {
+            margin: 0;
+            font-size: 1.6em;
+            font-weight: 700;
+            font-family: 'Georgia', serif;
+            letter-spacing: -0.5px;
+        }
+
+        .close-modal-btn {
+            background: transparent;
+            border: 1px solid white;
+            color: white;
+            font-size: 1.3em;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Georgia', serif;
+        }
+
+        .close-modal-btn:hover {
+            background: white;
+            color: #121212;
+        }
+
+        .chapter-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+        }
+
+        .chapter-item {
+            background: white;
+            border: 1px solid #e5e5e5;
+            padding: 25px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chapter-item:hover {
+            border-color: #121212;
+            background: #fafafa;
+        }
+
+        .chapter-item.current {
+            background: #121212;
+            color: white;
+            border-color: #121212;
+        }
+
+        .chapter-item-info {
+            flex: 1;
+        }
+
+        .chapter-item-number {
+            font-weight: 700;
+            font-size: 0.85em;
+            opacity: 0.7;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .chapter-item-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-family: 'Georgia', serif;
+        }
+
+        .chapter-item-words {
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+
+        .chapter-item-badge {
+            background: white;
+            color: #121212;
+            padding: 8px 18px;
+            font-weight: 700;
+            font-size: 0.8em;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .chapter-item.current .chapter-item-badge {
+            background: white;
+            color: #121212;
+        }
+
+        .context-viewer {
+            display: none;
+            background: white;
+            padding: 40px;
+            border-top: 1px solid #e5e5e5;
+        }
+
+        .context-viewer.active {
+            display: block;
+        }
+
+        .context-viewer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .context-viewer-header h3 {
+            color: #121212;
+            font-size: 1.5em;
+            margin: 0;
+            font-weight: 700;
+            font-family: 'Georgia', serif;
+            letter-spacing: -0.5px;
+        }
+
+        .close-context-btn {
+            background: transparent;
+            border: 1px solid #121212;
+            color: #121212;
+            padding: 8px 20px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .close-context-btn:hover {
+            background: #121212;
+            color: white;
+        }
+
+        .context-text-container {
+            background: #fafafa;
+            padding: 30px;
+            max-height: 400px;
+            overflow-y: auto;
+            line-height: 2;
+            font-size: 1.1em;
+            color: #121212;
+            font-family: 'Georgia', serif;
+            margin-bottom: 25px;
+            border: 1px solid #e5e5e5;
+        }
+
+        .context-word {
+            cursor: pointer;
+            padding: 2px 0;
+            transition: all 0.2s ease;
+        }
+
+        .context-word:hover {
+            background: #e5e5e5;
+        }
+
+        .context-word.current {
+            background: #121212;
+            color: white;
+            font-weight: 700;
+            padding: 3px 6px;
+        }
+
+        .context-word.read {
+            opacity: 0.4;
+        }
+
+        .context-navigation {
+            display: flex;
+            gap: 1px;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            background: #e5e5e5;
+            border: 1px solid #e5e5e5;
+        }
+
+        .context-nav-btn {
+            background: white;
+            border: none;
+            color: #121212;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex: 1;
+        }
+
+        .context-nav-btn:hover {
+            background: #fafafa;
+        }
+
+        .context-nav-btn:disabled {
+            background: white;
+            color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .context-position {
+            color: #666;
+            font-size: 0.9em;
+            text-align: center;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .resume-from-here-btn {
+            width: 100%;
+            background: #121212;
+            border: none;
+            color: white;
+            padding: 18px;
+            font-size: 0.9em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .resume-from-here-btn:hover {
+            background: #000;
+        }
+
+        .feature-toggles {
+            display: flex;
+            gap: 1px;
+            background: #e5e5e5;
+            border: 1px solid #e5e5e5;
+        }
+
+        .toggle-item {
+            background: white;
+            padding: 20px;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .toggle-item:hover {
+            background: #fafafa;
+        }
+
+        .toggle-item.active {
+            background: #fafafa;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: #e5e5e5;
+            transition: background 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .toggle-item.active .toggle-switch {
+            background: #121212;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            transition: transform 0.3s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-item.active .toggle-slider {
+            transform: translateX(24px);
+        }
+
+        .toggle-label {
+            font-weight: 700;
+            color: #121212;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .toggle-description {
+            color: #666;
+            font-size: 0.85em;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <button class="chapter-menu-btn" id="chapterMenuBtn">Chapters</button>
+    <button class="skip-chapter-btn" id="skipChapterBtn">Skip Chapter</button>
+    <button class="unload-book-btn" id="unloadBookBtn">Unload Book</button>
+
+    <div class="chapter-modal" id="chapterModal">
+        <div class="chapter-modal-content">
+            <div class="chapter-modal-header">
+                <h2>Select Chapter</h2>
+                <button class="close-modal-btn" id="closeModalBtn">✕</button>
+            </div>
+            <div class="chapter-list" id="chapterList">
+                <!-- Chapters will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="upload-section" id="uploadSection">
+            <h1>hypnoread</h1>
+            <p>Upload an EPUB or PDF to start speed reading</p>
+            
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">+</div>
+                <h3>Click to upload or drag and drop</h3>
+                <p>EPUB or PDF files only</p>
+                <input type="file" id="fileInput" accept=".epub,.pdf">
+            </div>
+            
+            <div class="error-message" id="errorMessage"></div>
+        </div>
+
+        <div class="reader-section" id="readerSection">
+            <div class="chapter-info" id="chapterInfo">
+                <h2 id="chapterTitle">Loading...</h2>
+                <p id="chapterProgress">Preparing your reading experience...</p>
+            </div>
+
+            <div class="word-display" style="position: relative;">
+                <div class="orp-marker"></div>
+                <div class="word-container">
+                    <div class="current-word" id="currentWord">
+                        <span class="orp">R</span><span class="after-orp">eady</span>
+                    </div>
+                </div>
+                <div class="pause-overlay" id="pauseOverlay">PAUSED</div>
+            </div>
+
+            <div class="controls">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+
+                <div class="control-row">
+                    <span class="control-label">Reading Speed:</span>
+                    <span class="control-value" id="speedDisplay">300 WPM</span>
+                </div>
+
+                <div class="control-row">
+                    <span class="control-label">Chapter Progress:</span>
+                    <span class="control-value" id="wordProgress">0 / 0 words</span>
+                </div>
+
+                <div class="feature-toggles">
+                    <div class="toggle-item active" id="variablePacingToggle">
+                        <div class="toggle-switch">
+                            <div class="toggle-slider"></div>
+                        </div>
+                        <div>
+                            <div class="toggle-label">Variable Pacing</div>
+                            <div class="toggle-description">Auto-pause at punctuation</div>
+                        </div>
+                    </div>
+
+                    <div class="toggle-item active" id="orpToggle">
+                        <div class="toggle-switch">
+                            <div class="toggle-slider"></div>
+                        </div>
+                        <div>
+                            <div class="toggle-label">Focus Letter (ORP)</div>
+                            <div class="toggle-description">Highlight recognition point</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="keyboard-hints">
+                <div class="hint">
+                    <div class="hint-key">SPACE</div>
+                    <div class="hint-action">Pause / Resume</div>
+                </div>
+                <div class="hint">
+                    <div class="hint-key">↑</div>
+                    <div class="hint-action">Speed Up</div>
+                </div>
+                <div class="hint">
+                    <div class="hint-key">↓</div>
+                    <div class="hint-action">Slow Down</div>
+                </div>
+                <div class="hint">
+                    <div class="hint-key">→</div>
+                    <div class="hint-action">Skip / Next Chapter</div>
+                </div>
+            </div>
+
+            <div class="chapter-end" id="chapterEnd">
+                <h2>Chapter Complete</h2>
+                <p id="chapterEndMessage">You've finished this chapter.</p>
+                <div class="next-indicator">Press → to continue to the next chapter</div>
+            </div>
+
+            <div class="context-viewer" id="contextViewer">
+                <div class="context-viewer-header">
+                    <h3>Chapter Text - Scroll & Select</h3>
+                    <button class="close-context-btn" id="closeContextBtn">Close</button>
+                </div>
+                
+                <div class="context-position" id="contextPosition">
+                    Word 1 of 0 (0% through chapter)
+                </div>
+
+                <div class="context-navigation">
+                    <button class="context-nav-btn" id="contextPrevBtn">← Back 100 words</button>
+                    <button class="context-nav-btn" id="contextNextBtn">Forward 100 words →</button>
+                </div>
+
+                <div class="context-text-container" id="contextTextContainer">
+                    <!-- Context words will be populated here -->
+                </div>
+
+                <button class="resume-from-here-btn" id="resumeFromHereBtn">
+                    Resume from selected word
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set up PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        // State management
+        let state = {
+            words: [],
+            chapters: [],
+            currentChapterIndex: 0,
+            currentWordIndex: 0,
+            wpm: 300,
+            isPlaying: false,
+            isPaused: false,
+            intervalId: null,
+            nextWordTimeout: null,
+            isChapterEnd: false,
+            contextSelectedWord: null,
+            variablePacingEnabled: true,
+            orpEnabled: true
+        };
+
+        // DOM elements
+        const uploadSection = document.getElementById('uploadSection');
+        const readerSection = document.getElementById('readerSection');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const currentWord = document.getElementById('currentWord');
+        const speedDisplay = document.getElementById('speedDisplay');
+        const wordProgress = document.getElementById('wordProgress');
+        const progressFill = document.getElementById('progressFill');
+        const chapterInfo = document.getElementById('chapterInfo');
+        const chapterTitle = document.getElementById('chapterTitle');
+        const chapterProgress = document.getElementById('chapterProgress');
+        const pauseOverlay = document.getElementById('pauseOverlay');
+        const chapterEnd = document.getElementById('chapterEnd');
+        const chapterEndMessage = document.getElementById('chapterEndMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const chapterMenuBtn = document.getElementById('chapterMenuBtn');
+        const skipChapterBtn = document.getElementById('skipChapterBtn');
+        const unloadBookBtn = document.getElementById('unloadBookBtn');
+        const chapterModal = document.getElementById('chapterModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const chapterList = document.getElementById('chapterList');
+        const contextViewer = document.getElementById('contextViewer');
+        const contextTextContainer = document.getElementById('contextTextContainer');
+        const contextPosition = document.getElementById('contextPosition');
+        const contextPrevBtn = document.getElementById('contextPrevBtn');
+        const contextNextBtn = document.getElementById('contextNextBtn');
+        const closeContextBtn = document.getElementById('closeContextBtn');
+        const resumeFromHereBtn = document.getElementById('resumeFromHereBtn');
+        const variablePacingToggle = document.getElementById('variablePacingToggle');
+        const orpToggle = document.getElementById('orpToggle');
+
+        // File upload handling
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            if (file) handleFile(file);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) handleFile(file);
+        });
+
+        async function handleFile(file) {
+            const fileName = file.name.toLowerCase();
+            
+            try {
+                if (fileName.endsWith('.epub')) {
+                    await loadEpub(file);
+                } else if (fileName.endsWith('.pdf')) {
+                    await loadPdf(file);
+                } else {
+                    showError('Please upload an EPUB or PDF file.');
+                    return;
+                }
+                
+                startReading();
+            } catch (error) {
+                showError('Error loading file: ' + error.message);
+                console.error(error);
+            }
+        }
+
+        async function loadEpub(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const zip = await JSZip.loadAsync(arrayBuffer);
+            
+            // Find content.opf
+            let contentOpf = null;
+            let opfPath = '';
+            
+            for (let filename in zip.files) {
+                if (filename.endsWith('.opf')) {
+                    contentOpf = await zip.files[filename].async('string');
+                    opfPath = filename.substring(0, filename.lastIndexOf('/') + 1);
+                    break;
+                }
+            }
+
+            if (!contentOpf) {
+                throw new Error('Invalid EPUB: content.opf not found');
+            }
+
+            // Parse OPF to get spine order
+            const parser = new DOMParser();
+            const opfDoc = parser.parseFromString(contentOpf, 'text/xml');
+            const manifest = {};
+            
+            opfDoc.querySelectorAll('manifest item').forEach(item => {
+                manifest[item.getAttribute('id')] = item.getAttribute('href');
+            });
+
+            const spineItems = opfDoc.querySelectorAll('spine itemref');
+            const chapters = [];
+
+            for (let item of spineItems) {
+                const idref = item.getAttribute('idref');
+                const href = manifest[idref];
+                
+                if (href) {
+                    const fullPath = opfPath + href;
+                    if (zip.files[fullPath]) {
+                        const content = await zip.files[fullPath].async('string');
+                        const doc = parser.parseFromString(content, 'text/html');
+                        
+                        // Extract title
+                        const titleElem = doc.querySelector('h1, h2, h3, title');
+                        const title = titleElem ? titleElem.textContent.trim() : `Chapter ${chapters.length + 1}`;
+                        
+                        // Extract text
+                        const text = doc.body ? doc.body.textContent : '';
+                        const words = text.split(/\s+/).filter(w => w.length > 0);
+                        
+                        if (words.length > 0) {
+                            chapters.push({ title, words });
+                        }
+                    }
+                }
+            }
+
+            if (chapters.length === 0) {
+                throw new Error('No readable content found in EPUB');
+            }
+
+            state.chapters = chapters;
+            state.currentChapterIndex = 0;
+            state.words = chapters[0].words;
+        }
+
+        async function loadPdf(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            const chapters = [];
+            
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const text = textContent.items.map(item => item.str).join(' ');
+                const words = text.split(/\s+/).filter(w => w.length > 0);
+                
+                if (words.length > 0) {
+                    chapters.push({
+                        title: `Page ${i}`,
+                        words: words
+                    });
+                }
+            }
+
+            if (chapters.length === 0) {
+                throw new Error('No readable text found in PDF');
+            }
+
+            state.chapters = chapters;
+            state.currentChapterIndex = 0;
+            state.words = chapters[0].words;
+        }
+
+        function startReading() {
+            uploadSection.style.display = 'none';
+            readerSection.classList.add('active');
+            chapterMenuBtn.classList.add('active');
+            skipChapterBtn.classList.add('active');
+            unloadBookBtn.classList.add('active');
+            renderChapterList();
+            updateChapterInfo();
+            updateDisplay();
+        }
+
+        function renderChapterList() {
+            chapterList.innerHTML = '';
+            
+            state.chapters.forEach((chapter, index) => {
+                const item = document.createElement('div');
+                item.className = 'chapter-item';
+                if (index === state.currentChapterIndex) {
+                    item.classList.add('current');
+                }
+                
+                item.innerHTML = `
+                    <div class="chapter-item-info">
+                        <div class="chapter-item-number">Chapter ${index + 1}</div>
+                        <div class="chapter-item-title">${chapter.title}</div>
+                        <div class="chapter-item-words">${chapter.words.length.toLocaleString()} words</div>
+                    </div>
+                    ${index === state.currentChapterIndex ? '<div class="chapter-item-badge">Current</div>' : ''}
+                `;
+                
+                item.addEventListener('click', () => {
+                    jumpToChapter(index);
+                    closeChapterMenu();
+                });
+                
+                chapterList.appendChild(item);
+            });
+        }
+
+        function jumpToChapter(index) {
+            if (index < 0 || index >= state.chapters.length) return;
+            
+            stopReading();
+            state.currentChapterIndex = index;
+            state.words = state.chapters[state.currentChapterIndex].words;
+            state.currentWordIndex = 0;
+            state.isChapterEnd = false;
+            
+            currentWord.style.display = 'block';
+            chapterEnd.classList.remove('active');
+            
+            updateChapterInfo();
+            updateDisplay();
+            renderChapterList();
+            startPlaying();
+        }
+
+        function skipChapter() {
+            if (state.currentChapterIndex < state.chapters.length - 1) {
+                jumpToChapter(state.currentChapterIndex + 1);
+            } else {
+                jumpToChapter(0); // Loop to beginning
+            }
+        }
+
+        function skipChapterWhilePaused() {
+            // Skip to next chapter without auto-starting
+            stopReading();
+            
+            if (state.currentChapterIndex < state.chapters.length - 1) {
+                state.currentChapterIndex++;
+            } else {
+                state.currentChapterIndex = 0; // Loop to beginning
+            }
+            
+            state.words = state.chapters[state.currentChapterIndex].words;
+            state.currentWordIndex = 0;
+            state.contextSelectedWord = 0;
+            state.isChapterEnd = false;
+            
+            currentWord.style.display = 'block';
+            chapterEnd.classList.remove('active');
+            
+            updateChapterInfo();
+            updateDisplay();
+            renderChapterList();
+            
+            // Update context viewer if it's open
+            if (contextViewer.classList.contains('active')) {
+                renderContextText();
+            }
+            
+            // Keep paused state
+            state.isPaused = true;
+            currentWord.style.visibility = 'hidden';
+        }
+
+        function unloadBook() {
+            // Stop any active reading
+            stopReading();
+            
+            // Hide reader section and buttons
+            readerSection.classList.remove('active');
+            chapterMenuBtn.classList.remove('active');
+            skipChapterBtn.classList.remove('active');
+            unloadBookBtn.classList.remove('active');
+            
+            // Close any open modals
+            closeChapterMenu();
+            hideContextViewer();
+            
+            // Reset state
+            state.words = [];
+            state.chapters = [];
+            state.currentChapterIndex = 0;
+            state.currentWordIndex = 0;
+            state.isPlaying = false;
+            state.isPaused = false;
+            state.isChapterEnd = false;
+            state.contextSelectedWord = null;
+            
+            // Clear file input
+            fileInput.value = '';
+            
+            // Show upload section
+            uploadSection.style.display = 'block';
+        }
+
+        function openChapterMenu() {
+            chapterModal.classList.add('active');
+            renderChapterList();
+            
+            // Pause reading while menu is open
+            if (state.isPlaying) {
+                stopReading();
+                state.isPaused = true;
+            }
+        }
+
+        function closeChapterMenu() {
+            chapterModal.classList.remove('active');
+            
+            // Resume if was playing before
+            if (state.isPaused && !state.isChapterEnd) {
+                startPlaying();
+            }
+        }
+
+        function updateChapterInfo() {
+            const chapter = state.chapters[state.currentChapterIndex];
+            chapterTitle.textContent = chapter.title;
+            chapterProgress.textContent = `Chapter ${state.currentChapterIndex + 1} of ${state.chapters.length}`;
+        }
+
+        function updateDisplay() {
+            if (state.currentWordIndex < state.words.length) {
+                const word = state.words[state.currentWordIndex];
+                displayWordWithORP(word);
+                
+                wordProgress.textContent = `${state.currentWordIndex + 1} / ${state.words.length} words`;
+                
+                const progress = ((state.currentWordIndex + 1) / state.words.length) * 100;
+                progressFill.style.width = progress + '%';
+            }
+        }
+
+        function displayWordWithORP(word) {
+            if (!state.orpEnabled) {
+                // Display word without ORP highlighting
+                currentWord.innerHTML = `<span style="opacity: 1;">${word}</span>`;
+                return;
+            }
+            
+            // Calculate ORP position (Optimal Recognition Point)
+            // For most words, it's slightly left of center
+            let orpIndex;
+            const len = word.length;
+            
+            if (len === 1) {
+                orpIndex = 0;
+            } else if (len === 2 || len === 3) {
+                orpIndex = 0;
+            } else if (len === 4 || len === 5) {
+                orpIndex = 1;
+            } else if (len >= 6 && len <= 9) {
+                orpIndex = 2;
+            } else if (len >= 10 && len <= 13) {
+                orpIndex = 3;
+            } else {
+                orpIndex = 4;
+            }
+            
+            const beforeORP = word.slice(0, orpIndex);
+            const orpChar = word[orpIndex];
+            const afterORP = word.slice(orpIndex + 1);
+            
+            // Use inline-block spans to control positioning
+            currentWord.innerHTML = `
+                <span class="before-orp" style="display: inline-block; margin-right: -0.02em;">${beforeORP}</span><span class="orp" style="display: inline-block;">${orpChar}</span><span class="after-orp" style="display: inline-block; margin-left: -0.02em;">${afterORP}</span>
+            `;
+        }
+
+        function playWord() {
+            if (state.isChapterEnd || !state.isPlaying) return;
+            
+            if (state.currentWordIndex < state.words.length) {
+                updateDisplay();
+                
+                // Check if current word has punctuation for next pause
+                const currentWord = state.words[state.currentWordIndex];
+                const pauseMultiplier = state.variablePacingEnabled ? getPauseMultiplier(currentWord) : 1;
+                
+                state.currentWordIndex++;
+                
+                // Schedule next word with appropriate timing
+                const baseInterval = 60000 / state.wpm;
+                const nextInterval = baseInterval * pauseMultiplier;
+                
+                // Clear any existing timeout
+                if (state.nextWordTimeout) {
+                    clearTimeout(state.nextWordTimeout);
+                }
+                
+                // Schedule next word
+                state.nextWordTimeout = setTimeout(() => {
+                    if (state.isPlaying) {
+                        playWord();
+                    }
+                }, nextInterval);
+            } else {
+                // Chapter end
+                stopReading();
+                showChapterEnd();
+            }
+        }
+
+        function getPauseMultiplier(word) {
+            // Check for sentence-ending punctuation
+            if (/[.!?]+$/.test(word)) {
+                // Period, exclamation, or question mark
+                return 2.5; // Longer pause for sentence boundaries
+            }
+            
+            // Check for mid-sentence punctuation
+            if (/[,;:—–-]+$/.test(word)) {
+                // Comma, semicolon, colon, em-dash, en-dash, hyphen
+                return 1.5; // Medium pause for clause boundaries
+            }
+            
+            // Check for quotes or parentheses
+            if (/["')]$/.test(word)) {
+                return 1.3; // Slight pause for closing quotes/parentheses
+            }
+            
+            return 1; // No pause adjustment
+        }
+
+        function startPlaying() {
+            if (state.isChapterEnd) return;
+            
+            state.isPlaying = true;
+            state.isPaused = false;
+            pauseOverlay.classList.remove('active');
+            
+            // Start the word display loop
+            playWord();
+        }
+
+        function stopReading() {
+            state.isPlaying = false;
+            if (state.intervalId) {
+                clearInterval(state.intervalId);
+                state.intervalId = null;
+            }
+            if (state.nextWordTimeout) {
+                clearTimeout(state.nextWordTimeout);
+                state.nextWordTimeout = null;
+            }
+        }
+
+        function togglePause() {
+            if (state.isChapterEnd) return;
+            
+            if (state.isPlaying) {
+                stopReading();
+                state.isPaused = true;
+                pauseOverlay.classList.add('active');
+                currentWord.style.visibility = 'hidden'; // Hide the word when paused
+                showContextViewer();
+            } else {
+                // If user has selected a different word in context viewer, jump to it
+                if (state.contextSelectedWord !== null && state.contextSelectedWord !== state.currentWordIndex) {
+                    state.currentWordIndex = state.contextSelectedWord;
+                    updateDisplay();
+                }
+                
+                state.isPaused = false;
+                pauseOverlay.classList.remove('active');
+                currentWord.style.visibility = 'visible'; // Show the word when playing
+                hideContextViewer();
+                startPlaying();
+            }
+        }
+
+        function changeSpeed(delta) {
+            state.wpm = Math.max(25, Math.min(1000, state.wpm + delta));
+            speedDisplay.textContent = state.wpm + ' WPM';
+            
+            // If currently playing, the next word will automatically use the new speed
+            // No need to restart - the timing is recalculated for each word
+        }
+
+        function showChapterEnd() {
+            state.isChapterEnd = true;
+            currentWord.style.display = 'none';
+            chapterEnd.classList.add('active');
+            
+            if (state.currentChapterIndex < state.chapters.length - 1) {
+                chapterEndMessage.textContent = `You've finished "${state.chapters[state.currentChapterIndex].title}"`;
+            } else {
+                chapterEndMessage.textContent = "You've finished the entire book!";
+                chapterEnd.querySelector('.next-indicator').textContent = 'Press → to restart from Chapter 1';
+            }
+        }
+
+        function nextChapter() {
+            if (state.currentChapterIndex < state.chapters.length - 1) {
+                jumpToChapter(state.currentChapterIndex + 1);
+            } else {
+                jumpToChapter(0); // Loop back to start
+            }
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('active');
+            setTimeout(() => {
+                errorMessage.classList.remove('active');
+            }, 5000);
+        }
+
+        function showContextViewer() {
+            state.contextSelectedWord = state.currentWordIndex;
+            contextViewer.classList.add('active');
+            renderContextText();
+        }
+
+        function hideContextViewer() {
+            contextViewer.classList.remove('active');
+        }
+
+        function renderContextText() {
+            contextTextContainer.innerHTML = '';
+            
+            // Render all words in the chapter
+            for (let i = 0; i < state.words.length; i++) {
+                const span = document.createElement('span');
+                span.className = 'context-word';
+                span.textContent = state.words[i] + ' ';
+                
+                if (i < state.currentWordIndex) {
+                    span.classList.add('read');
+                }
+                
+                if (i === state.contextSelectedWord) {
+                    span.classList.add('current');
+                    // Scroll to current word after rendering
+                    setTimeout(() => {
+                        span.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 100);
+                }
+                
+                // Capture the index in the closure properly
+                (function(wordIndex) {
+                    span.addEventListener('click', () => {
+                        // Remove previous current highlight
+                        const prevCurrent = contextTextContainer.querySelector('.context-word.current');
+                        if (prevCurrent) {
+                            prevCurrent.classList.remove('current');
+                        }
+                        
+                        // Add new current highlight
+                        state.contextSelectedWord = wordIndex;
+                        span.classList.add('current');
+                    });
+                })(i);
+                
+                contextTextContainer.appendChild(span);
+            }
+            
+            // Update position info
+            const percentage = Math.round((state.contextSelectedWord / state.words.length) * 100);
+            contextPosition.textContent = `Word ${state.contextSelectedWord + 1} of ${state.words.length} (${percentage}% through chapter)`;
+        }
+
+        function navigateContext(direction) {
+            // Jump by 100 words
+            const step = 100;
+            let newIndex = state.contextSelectedWord + (direction * step);
+            
+            // Clamp to valid range
+            newIndex = Math.max(0, Math.min(state.words.length - 1, newIndex));
+            
+            // Remove previous highlight
+            const prevCurrent = contextTextContainer.querySelector('.context-word.current');
+            if (prevCurrent) {
+                prevCurrent.classList.remove('current');
+            }
+            
+            // Update selected word
+            state.contextSelectedWord = newIndex;
+            
+            // Find and highlight the new word
+            const allWords = contextTextContainer.querySelectorAll('.context-word');
+            if (allWords[newIndex]) {
+                allWords[newIndex].classList.add('current');
+                allWords[newIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            
+            // Update position info
+            const percentage = Math.round((state.contextSelectedWord / state.words.length) * 100);
+            contextPosition.textContent = `Word ${state.contextSelectedWord + 1} of ${state.words.length} (${percentage}% through chapter)`;
+            
+            // Update button states
+            contextPrevBtn.disabled = newIndex === 0;
+            contextNextBtn.disabled = newIndex === state.words.length - 1;
+        }
+
+        function resumeFromSelectedWord() {
+            state.currentWordIndex = state.contextSelectedWord;
+            updateDisplay();
+            hideContextViewer();
+            currentWord.style.visibility = 'visible'; // Make word visible again
+            startPlaying();
+            pauseOverlay.classList.remove('active');
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (uploadSection.style.display !== 'none') return;
+            
+            // Don't handle keys if modal is open (except Escape)
+            if (chapterModal.classList.contains('active') && e.key !== 'Escape') return;
+            
+            switch(e.key) {
+                case ' ':
+                    e.preventDefault();
+                    togglePause();
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    changeSpeed(25);
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    changeSpeed(-25);
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    if (state.isChapterEnd) {
+                        nextChapter();
+                    } else if (state.isPaused) {
+                        // If paused, skip chapter but don't auto-start
+                        skipChapterWhilePaused();
+                    } else {
+                        skipChapter();
+                    }
+                    break;
+                case 'Escape':
+                    if (chapterModal.classList.contains('active')) {
+                        closeChapterMenu();
+                    }
+                    break;
+            }
+        });
+
+        // Button event listeners
+        chapterMenuBtn.addEventListener('click', openChapterMenu);
+        skipChapterBtn.addEventListener('click', () => {
+            if (state.isPaused) {
+                skipChapterWhilePaused();
+            } else {
+                skipChapter();
+            }
+        });
+        unloadBookBtn.addEventListener('click', unloadBook);
+        closeModalBtn.addEventListener('click', closeChapterMenu);
+        
+        // Close modal when clicking outside
+        chapterModal.addEventListener('click', (e) => {
+            if (e.target === chapterModal) {
+                closeChapterMenu();
+            }
+        });
+
+        // Context viewer event listeners
+        closeContextBtn.addEventListener('click', () => {
+            hideContextViewer();
+            if (state.isPaused) {
+                currentWord.style.visibility = 'visible';
+                startPlaying();
+                pauseOverlay.classList.remove('active');
+            }
+        });
+
+        contextPrevBtn.addEventListener('click', () => navigateContext(-1));
+        contextNextBtn.addEventListener('click', () => navigateContext(1));
+        resumeFromHereBtn.addEventListener('click', resumeFromSelectedWord);
+
+        // Toggle event listeners
+        variablePacingToggle.addEventListener('click', () => {
+            state.variablePacingEnabled = !state.variablePacingEnabled;
+            variablePacingToggle.classList.toggle('active');
+        });
+
+        orpToggle.addEventListener('click', () => {
+            state.orpEnabled = !state.orpEnabled;
+            orpToggle.classList.toggle('active');
+            // Update current display if not playing
+            if (!state.isPlaying && state.currentWordIndex < state.words.length) {
+                updateDisplay();
+            }
+        });
+
+        // Auto-start reading when loaded
+        setTimeout(() => {
+            if (state.words.length > 0 && !state.isPlaying) {
+                startPlaying();
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
