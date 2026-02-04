@@ -337,54 +337,6 @@
             font-family: 'Georgia', serif;
         }
 
-        /* Web Control Buttons */
-        .web-controls {
-            display: flex;
-            gap: 1px;
-            background: #e5e5e5;
-            border: 1px solid #e5e5e5;
-            margin-top: 20px;
-        }
-
-        .web-control-btn {
-            flex: 1;
-            background: white;
-            border: none;
-            padding: 15px 20px;
-            font-size: 0.85em;
-            font-weight: 700;
-            cursor: pointer;
-            font-family: 'Georgia', serif;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            transition: all 0.2s ease;
-            color: #121212;
-        }
-
-        .web-control-btn:hover {
-            background: #fafafa;
-        }
-
-        .web-control-btn:active {
-            background: #121212;
-            color: white;
-        }
-
-        .web-control-btn.primary {
-            background: #121212;
-            color: white;
-        }
-
-        .web-control-btn.primary:hover {
-            background: #000;
-        }
-
-        @media (max-width: 768px) {
-            .web-controls {
-                display: none;
-            }
-        }
-
         .progress-bar {
             width: 100%;
             height: 4px;
@@ -435,6 +387,25 @@
             background: white;
             padding: 20px;
             text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .hint:hover {
+            background: #fafafa;
+        }
+
+        .hint:active {
+            background: #121212;
+        }
+
+        .hint:active .hint-key {
+            background: white;
+            color: #121212;
+        }
+
+        .hint:active .hint-action {
+            color: white;
         }
 
         .hint-key {
@@ -1295,14 +1266,6 @@
                     <span class="reading-timer" id="readingTimer">00:00</span>
                 </div>
 
-                <!-- Web Control Buttons -->
-                <div class="web-controls">
-                    <button class="web-control-btn primary" id="webPauseBtn">Pause / Resume</button>
-                    <button class="web-control-btn" id="webSlowBtn">Slow Down</button>
-                    <button class="web-control-btn" id="webFastBtn">Speed Up</button>
-                    <button class="web-control-btn" id="webSkipBtn">Skip Chapter</button>
-                </div>
-
                 <div class="feature-toggles">
                     <div class="toggle-item active" id="variablePacingToggle">
                         <div class="toggle-switch">
@@ -1327,19 +1290,19 @@
             </div>
 
             <div class="keyboard-hints">
-                <div class="hint">
+                <div class="hint" id="hintPause">
                     <div class="hint-key">SPACE</div>
                     <div class="hint-action">Pause / Resume</div>
                 </div>
-                <div class="hint">
+                <div class="hint" id="hintSpeedUp">
                     <div class="hint-key">↑</div>
                     <div class="hint-action">Speed Up</div>
                 </div>
-                <div class="hint">
+                <div class="hint" id="hintSlowDown">
                     <div class="hint-key">↓</div>
                     <div class="hint-action">Slow Down</div>
                 </div>
-                <div class="hint">
+                <div class="hint" id="hintSkip">
                     <div class="hint-key">→</div>
                     <div class="hint-action">Skip / Next Chapter</div>
                 </div>
@@ -1447,13 +1410,32 @@
         const mobileSlowBtn = document.getElementById('mobileSlowBtn');
         const mobileFastBtn = document.getElementById('mobileFastBtn');
         const readingTimer = document.getElementById('readingTimer');
-        const webPauseBtn = document.getElementById('webPauseBtn');
-        const webSlowBtn = document.getElementById('webSlowBtn');
-        const webFastBtn = document.getElementById('webFastBtn');
-        const webSkipBtn = document.getElementById('webSkipBtn');
+        const hintPause = document.getElementById('hintPause');
+        const hintSpeedUp = document.getElementById('hintSpeedUp');
+        const hintSlowDown = document.getElementById('hintSlowDown');
+        const hintSkip = document.getElementById('hintSkip');
         const onboardingModal = document.getElementById('onboardingModal');
         const onboardingStartBtn = document.getElementById('onboardingStartBtn');
         const dontShowAgain = document.getElementById('dontShowAgain');
+
+        // Function to split words containing em dashes into separate tokens
+        function splitEmDashes(words) {
+            const result = [];
+            const emDashPattern = /([—–])/; // em-dash and en-dash
+
+            words.forEach(word => {
+                // Check if word contains em-dash or en-dash
+                if (emDashPattern.test(word)) {
+                    // Split by em/en dash, keeping the dash as a separate token
+                    const parts = word.split(emDashPattern).filter(part => part.length > 0);
+                    result.push(...parts);
+                } else {
+                    result.push(word);
+                }
+            });
+
+            return result;
+        }
 
         // File upload handling
         uploadArea.addEventListener('click', () => fileInput.click());
@@ -1575,7 +1557,9 @@
                                 blockElements.forEach(elem => {
                                     const text = elem.textContent.trim();
                                     if (text) {
-                                        const words = text.split(/\s+/).filter(w => w.length > 0);
+                                        let words = text.split(/\s+/).filter(w => w.length > 0);
+                                        // Split em-dashes into separate tokens
+                                        words = splitEmDashes(words);
                                         if (words.length > 0) {
                                             const startIndex = allWords.length;
                                             allWords.push(...words);
@@ -1593,7 +1577,9 @@
                                 const textBlocks = text.split(/\n\s*\n/).filter(t => t.trim());
 
                                 textBlocks.forEach(block => {
-                                    const words = block.split(/\s+/).filter(w => w.length > 0);
+                                    let words = block.split(/\s+/).filter(w => w.length > 0);
+                                    // Split em-dashes into separate tokens
+                                    words = splitEmDashes(words);
                                     if (words.length > 0) {
                                         const startIndex = allWords.length;
                                         allWords.push(...words);
@@ -1646,7 +1632,9 @@
                     // Detect paragraph break by significant Y position change
                     if (lastY !== null && Math.abs(currentY - lastY) > 15 && currentParagraph.length > 0) {
                         const paraText = currentParagraph.join(' ');
-                        const words = paraText.split(/\s+/).filter(w => w.length > 0);
+                        let words = paraText.split(/\s+/).filter(w => w.length > 0);
+                        // Split em-dashes into separate tokens
+                        words = splitEmDashes(words);
                         if (words.length > 0) {
                             const startIndex = allWords.length;
                             allWords.push(...words);
@@ -1668,7 +1656,9 @@
                 // Add the last paragraph
                 if (currentParagraph.length > 0) {
                     const paraText = currentParagraph.join(' ');
-                    const words = paraText.split(/\s+/).filter(w => w.length > 0);
+                    let words = paraText.split(/\s+/).filter(w => w.length > 0);
+                    // Split em-dashes into separate tokens
+                    words = splitEmDashes(words);
                     if (words.length > 0) {
                         const startIndex = allWords.length;
                         allWords.push(...words);
@@ -2357,12 +2347,14 @@
         mobileSlowBtn.addEventListener('click', () => changeSpeed(-25));
         mobileFastBtn.addEventListener('click', () => changeSpeed(25));
 
-        // Web control event listeners
-        webPauseBtn.addEventListener('click', togglePause);
-        webSlowBtn.addEventListener('click', () => changeSpeed(-25));
-        webFastBtn.addEventListener('click', () => changeSpeed(25));
-        webSkipBtn.addEventListener('click', () => {
-            if (state.isPaused) {
+        // Keyboard hints as clickable controls (web version)
+        hintPause.addEventListener('click', togglePause);
+        hintSpeedUp.addEventListener('click', () => changeSpeed(25));
+        hintSlowDown.addEventListener('click', () => changeSpeed(-25));
+        hintSkip.addEventListener('click', () => {
+            if (state.isChapterEnd) {
+                nextChapter();
+            } else if (state.isPaused) {
                 skipChapterWhilePaused();
             } else {
                 skipChapter();
