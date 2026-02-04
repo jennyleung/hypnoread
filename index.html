@@ -200,6 +200,14 @@
             font-family: 'Georgia', serif;
         }
 
+        /* Reading Timer */
+        .reading-timer {
+            font-size: 1.3em;
+            color: #121212;
+            font-weight: 700;
+            font-family: 'Georgia', serif;
+        }
+
         .progress-bar {
             width: 100%;
             height: 4px;
@@ -250,6 +258,25 @@
             background: white;
             padding: 20px;
             text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .hint:hover {
+            background: #fafafa;
+        }
+
+        .hint:active {
+            background: #121212;
+        }
+
+        .hint:active .hint-key {
+            background: white;
+            color: #121212;
+        }
+
+        .hint:active .hint-action {
+            color: white;
         }
 
         .hint-key {
@@ -1068,6 +1095,11 @@
                     <span class="control-value" id="wordProgress">0 / 0 words</span>
                 </div>
 
+                <div class="control-row">
+                    <span class="control-label">Reading Time:</span>
+                    <span class="reading-timer" id="readingTimer">00:00</span>
+                </div>
+
                 <div class="feature-toggles">
                     <div class="toggle-item active" id="variablePacingToggle">
                         <div class="toggle-switch">
@@ -1092,19 +1124,19 @@
             </div>
 
             <div class="keyboard-hints">
-                <div class="hint">
+                <div class="hint" id="hintPause">
                     <div class="hint-key">SPACE</div>
                     <div class="hint-action">Pause / Resume</div>
                 </div>
-                <div class="hint">
+                <div class="hint" id="hintSpeedUp">
                     <div class="hint-key">↑</div>
                     <div class="hint-action">Speed Up</div>
                 </div>
-                <div class="hint">
+                <div class="hint" id="hintSlowDown">
                     <div class="hint-key">↓</div>
                     <div class="hint-action">Slow Down</div>
                 </div>
-                <div class="hint">
+                <div class="hint" id="hintSkip">
                     <div class="hint-key">→</div>
                     <div class="hint-action">Skip / Next Chapter</div>
                 </div>
@@ -1208,7 +1240,33 @@
         const mobilePauseBtn = document.getElementById('mobilePauseBtn');
         const mobileSlowBtn = document.getElementById('mobileSlowBtn');
         const mobileFastBtn = document.getElementById('mobileFastBtn');
-        const mobileSkipBtn = document.getElementById('mobileSkipBtn');
+        const readingTimer = document.getElementById('readingTimer');
+        const hintPause = document.getElementById('hintPause');
+        const hintSpeedUp = document.getElementById('hintSpeedUp');
+        const hintSlowDown = document.getElementById('hintSlowDown');
+        const hintSkip = document.getElementById('hintSkip');
+        const onboardingModal = document.getElementById('onboardingModal');
+        const onboardingStartBtn = document.getElementById('onboardingStartBtn');
+        const dontShowAgain = document.getElementById('dontShowAgain');
+
+        // Function to split words containing em dashes into separate tokens
+        function splitEmDashes(words) {
+            const result = [];
+            const emDashPattern = /([—–])/; // em-dash and en-dash
+
+            words.forEach(word => {
+                // Check if word contains em-dash or en-dash
+                if (emDashPattern.test(word)) {
+                    // Split by em/en dash, keeping the dash as a separate token
+                    const parts = word.split(emDashPattern).filter(part => part.length > 0);
+                    result.push(...parts);
+                } else {
+                    result.push(word);
+                }
+            });
+
+            return result;
+        }
 
         // File upload handling
         uploadArea.addEventListener('click', () => fileInput.click());
