@@ -32,6 +32,135 @@
             overflow: hidden;
         }
 
+        /* Onboarding Modal */
+        .onboarding-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 3000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .onboarding-modal.active {
+            display: flex;
+        }
+
+        .onboarding-content {
+            background: white;
+            max-width: 650px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid #121212;
+        }
+
+        .onboarding-header {
+            background: #121212;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .onboarding-header h2 {
+            font-family: 'Georgia', serif;
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .onboarding-header p {
+            opacity: 0.8;
+            font-size: 1em;
+        }
+
+        .onboarding-body {
+            padding: 30px;
+        }
+
+        .onboarding-section {
+            margin-bottom: 25px;
+        }
+
+        .onboarding-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .onboarding-section h3 {
+            font-family: 'Georgia', serif;
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #121212;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .onboarding-section h3 .key-hint {
+            background: #121212;
+            color: white;
+            padding: 4px 10px;
+            font-size: 0.75em;
+            letter-spacing: 0.5px;
+        }
+
+        .onboarding-section p {
+            color: #555;
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+
+        .onboarding-divider {
+            height: 1px;
+            background: #e5e5e5;
+            margin: 20px 0;
+        }
+
+        .onboarding-footer {
+            padding: 20px 30px 30px;
+            text-align: center;
+        }
+
+        .onboarding-start-btn {
+            background: #121212;
+            color: white;
+            border: none;
+            padding: 18px 50px;
+            font-size: 1em;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Georgia', serif;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: background 0.3s ease;
+        }
+
+        .onboarding-start-btn:hover {
+            background: #000;
+        }
+
+        .onboarding-checkbox {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .onboarding-checkbox input {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
         .upload-section {
             padding: 80px 60px;
             text-align: center;
@@ -815,9 +944,9 @@
 
         .mobile-control-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: 1fr 1fr;
             gap: 8px;
-            max-width: 600px;
+            max-width: 400px;
             margin: 0 auto;
         }
 
@@ -825,7 +954,7 @@
             background: white;
             border: 1px solid #121212;
             color: #121212;
-            padding: 15px 10px;
+            padding: 12px 10px;
             font-size: 0.75em;
             font-weight: 700;
             cursor: pointer;
@@ -852,50 +981,9 @@
             background: #000;
         }
 
-        /* Landscape Prompt */
+        /* Landscape Prompt - now just a helpful tip, not enforced */
         .landscape-prompt {
             display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: #121212;
-            color: white;
-            z-index: 9999;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-            text-align: center;
-        }
-
-        .landscape-prompt.active {
-            display: flex;
-        }
-
-        .landscape-prompt-icon {
-            font-size: 4em;
-            margin-bottom: 20px;
-            animation: rotate 2s ease-in-out infinite;
-        }
-
-        @keyframes rotate {
-            0%, 100% { transform: rotate(0deg); }
-            50% { transform: rotate(90deg); }
-        }
-
-        .landscape-prompt h2 {
-            font-family: 'Georgia', serif;
-            font-size: 1.8em;
-            margin-bottom: 15px;
-            font-weight: 700;
-        }
-
-        .landscape-prompt p {
-            font-size: 1.1em;
-            opacity: 0.8;
-            max-width: 400px;
         }
 
         /* Mobile Responsive Adjustments */
@@ -917,12 +1005,12 @@
             }
 
             .word-display {
-                padding: 60px 20px;
-                min-height: 250px;
+                padding: 50px 20px;
+                min-height: 200px;
             }
 
             .current-word {
-                font-size: 3em;
+                font-size: 2.5em;
             }
 
             .word-container {
@@ -930,11 +1018,16 @@
             }
 
             .controls {
-                padding: 20px;
+                padding: 15px;
+                padding-bottom: 100px; /* Space for mobile controls */
             }
 
             .chapter-info {
-                padding: 20px;
+                padding: 15px;
+            }
+
+            .chapter-info h2 {
+                font-size: 1.3em;
             }
 
             .keyboard-hints {
@@ -963,13 +1056,14 @@
             }
 
             .context-viewer {
-                padding: 20px;
+                padding: 15px;
             }
 
             .context-text-container {
-                font-size: 1em;
-                padding: 20px;
-                max-height: 300px;
+                font-size: 0.85em;
+                padding: 15px;
+                max-height: 250px;
+                line-height: 1.7;
             }
 
             .feature-toggles {
@@ -979,58 +1073,130 @@
             .toggle-item {
                 min-width: 100%;
             }
+
+            .onboarding-content {
+                max-height: 85vh;
+            }
+
+            .onboarding-header {
+                padding: 20px;
+            }
+
+            .onboarding-header h2 {
+                font-size: 1.4em;
+            }
+
+            .onboarding-body {
+                padding: 20px;
+            }
+
+            .onboarding-section {
+                margin-bottom: 18px;
+            }
+
+            .onboarding-section h3 {
+                font-size: 1em;
+            }
+
+            .onboarding-section p {
+                font-size: 0.9em;
+            }
         }
 
-        /* Landscape Mode Specific */
-        @media (max-width: 768px) and (orientation: portrait) {
-            .landscape-prompt {
-                display: flex;
-            }
-            
-            .reader-section.active {
-                display: none;
-            }
-        }
-
+        /* Landscape orientation adjustments */
         @media (max-width: 768px) and (orientation: landscape) {
-            .landscape-prompt {
-                display: none;
-            }
-
             .word-display {
-                padding: 40px 20px;
-                min-height: 200px;
+                padding: 30px 20px;
+                min-height: 150px;
             }
 
             .current-word {
-                font-size: 2.5em;
+                font-size: 2em;
             }
 
             .controls {
-                padding: 15px;
+                padding: 10px 15px;
             }
 
             .control-row {
-                margin-bottom: 10px;
-                padding-bottom: 10px;
+                margin-bottom: 8px;
+                padding-bottom: 8px;
             }
 
             .chapter-info {
-                padding: 15px;
+                padding: 10px;
             }
 
             .chapter-info h2 {
-                font-size: 1.3em;
+                font-size: 1.1em;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Landscape Prompt for Mobile -->
-    <div class="landscape-prompt" id="landscapePrompt">
-        <div class="landscape-prompt-icon">📱→📱</div>
-        <h2>Rotate Your Device</h2>
-        <p>For the best reading experience, please use landscape mode</p>
+    <!-- Onboarding Modal for First-Time Users -->
+    <div class="onboarding-modal" id="onboardingModal">
+        <div class="onboarding-content">
+            <div class="onboarding-header">
+                <h2>Welcome to hypnoread</h2>
+                <p>Here's how to get the most out of your reading experience</p>
+            </div>
+            <div class="onboarding-body">
+                <div class="onboarding-section">
+                    <h3>Pause & Resume <span class="key-hint">SPACE</span></h3>
+                    <p>Press the spacebar or tap the Pause/Resume button to pause reading. While paused, you can view the full chapter text and select where to resume.</p>
+                </div>
+
+                <div class="onboarding-divider"></div>
+
+                <div class="onboarding-section">
+                    <h3>Control Reading Speed <span class="key-hint">↑ ↓</span></h3>
+                    <p>Use the up and down arrow keys or the Slow/Fast buttons to adjust your reading speed. Start slower (200-300 WPM) and gradually increase as you get comfortable.</p>
+                </div>
+
+                <div class="onboarding-divider"></div>
+
+                <div class="onboarding-section">
+                    <h3>Skip to Next Chapter <span class="key-hint">→</span></h3>
+                    <p>Press the right arrow key or the Skip Chapter button to move to the next chapter. You can also use the Chapters button to jump to any chapter.</p>
+                </div>
+
+                <div class="onboarding-divider"></div>
+
+                <div class="onboarding-section">
+                    <h3>Select a Chapter</h3>
+                    <p>Click the "Chapters" button in the top-left corner to open the chapter list. You can jump to any chapter in your book from there.</p>
+                </div>
+
+                <div class="onboarding-divider"></div>
+
+                <div class="onboarding-section">
+                    <h3>Variable Pacing</h3>
+                    <p>When enabled, the reader automatically pauses slightly at punctuation marks (periods, commas, etc.) giving your brain natural breaks to process meaning, just like natural reading.</p>
+                </div>
+
+                <div class="onboarding-divider"></div>
+
+                <div class="onboarding-section">
+                    <h3>Focus Letter (ORP)</h3>
+                    <p>The highlighted red letter is the Optimal Recognition Point. Your eyes naturally focus here when reading. By aligning words at this point, you can read faster with less eye movement.</p>
+                </div>
+
+                <div class="onboarding-divider"></div>
+
+                <div class="onboarding-section">
+                    <h3>Start from Another Point</h3>
+                    <p>Press Space to pause, then use the chapter text viewer to click any word and resume from that position. Use the navigation buttons to jump forward or back 100 words at a time.</p>
+                </div>
+            </div>
+            <div class="onboarding-footer">
+                <button class="onboarding-start-btn" id="onboardingStartBtn">Start Reading</button>
+                <div class="onboarding-checkbox">
+                    <input type="checkbox" id="dontShowAgain">
+                    <label for="dontShowAgain">Don't show this again</label>
+                </div>
+            </div>
+        </div>
     </div>
 
     <button class="chapter-menu-btn" id="chapterMenuBtn">Chapters</button>
@@ -1176,9 +1342,8 @@
             <div class="mobile-controls" id="mobileControls">
                 <div class="mobile-control-grid">
                     <button class="mobile-control-btn primary" id="mobilePauseBtn">Pause/Resume</button>
-                    <button class="mobile-control-btn" id="mobileSlowBtn">Slow<br>(-25)</button>
-                    <button class="mobile-control-btn" id="mobileFastBtn">Fast<br>(+25)</button>
-                    <button class="mobile-control-btn" id="mobileSkipBtn">Skip<br>Chapter</button>
+                    <button class="mobile-control-btn" id="mobileSlowBtn">Slow (-25)</button>
+                    <button class="mobile-control-btn" id="mobileFastBtn">Fast (+25)</button>
                 </div>
             </div>
         </div>
@@ -1191,6 +1356,7 @@
         // State management
         let state = {
             words: [],
+            paragraphs: [], // Store paragraph structure for context view
             chapters: [],
             currentChapterIndex: 0,
             currentWordIndex: 0,
@@ -1202,7 +1368,10 @@
             isChapterEnd: false,
             contextSelectedWord: null,
             variablePacingEnabled: true,
-            orpEnabled: true
+            orpEnabled: true,
+            readingStartTime: null,
+            totalReadingTime: 0,
+            timerInterval: null
         };
 
         // DOM elements
@@ -1294,7 +1463,7 @@
 
         async function handleFile(file) {
             const fileName = file.name.toLowerCase();
-            
+
             try {
                 if (fileName.endsWith('.epub')) {
                     await loadEpub(file);
@@ -1304,22 +1473,40 @@
                     showError('Please upload an EPUB or PDF file.');
                     return;
                 }
-                
-                startReading();
+
+                // Check if this is the user's first time
+                const hasSeenOnboarding = localStorage.getItem('hypnoread_onboarding_seen');
+                if (!hasSeenOnboarding) {
+                    showOnboarding();
+                } else {
+                    startReading();
+                }
             } catch (error) {
                 showError('Error loading file: ' + error.message);
                 console.error(error);
             }
         }
 
+        function showOnboarding() {
+            onboardingModal.classList.add('active');
+        }
+
+        function hideOnboarding() {
+            onboardingModal.classList.remove('active');
+            if (dontShowAgain.checked) {
+                localStorage.setItem('hypnoread_onboarding_seen', 'true');
+            }
+            startReading();
+        }
+
         async function loadEpub(file) {
             const arrayBuffer = await file.arrayBuffer();
             const zip = await JSZip.loadAsync(arrayBuffer);
-            
+
             // Find content.opf
             let contentOpf = null;
             let opfPath = '';
-            
+
             for (let filename in zip.files) {
                 if (filename.endsWith('.opf')) {
                     contentOpf = await zip.files[filename].async('string');
@@ -1336,7 +1523,7 @@
             const parser = new DOMParser();
             const opfDoc = parser.parseFromString(contentOpf, 'text/xml');
             const manifest = {};
-            
+
             opfDoc.querySelectorAll('manifest item').forEach(item => {
                 manifest[item.getAttribute('id')] = item.getAttribute('href');
             });
@@ -1347,23 +1534,67 @@
             for (let item of spineItems) {
                 const idref = item.getAttribute('idref');
                 const href = manifest[idref];
-                
+
                 if (href) {
                     const fullPath = opfPath + href;
                     if (zip.files[fullPath]) {
                         const content = await zip.files[fullPath].async('string');
                         const doc = parser.parseFromString(content, 'text/html');
-                        
+
                         // Extract title
                         const titleElem = doc.querySelector('h1, h2, h3, title');
                         const title = titleElem ? titleElem.textContent.trim() : `Chapter ${chapters.length + 1}`;
-                        
-                        // Extract text
-                        const text = doc.body ? doc.body.textContent : '';
-                        const words = text.split(/\s+/).filter(w => w.length > 0);
-                        
-                        if (words.length > 0) {
-                            chapters.push({ title, words });
+
+                        // Extract paragraphs with structure
+                        const paragraphs = [];
+                        const allWords = [];
+
+                        if (doc.body) {
+                            // Get all paragraph-like elements
+                            const blockElements = doc.body.querySelectorAll('p, div, h1, h2, h3, h4, h5, h6, li, blockquote');
+
+                            if (blockElements.length > 0) {
+                                blockElements.forEach(elem => {
+                                    const text = elem.textContent.trim();
+                                    if (text) {
+                                        let words = text.split(/\s+/).filter(w => w.length > 0);
+                                        // Split em-dashes into separate tokens
+                                        words = splitEmDashes(words);
+                                        if (words.length > 0) {
+                                            const startIndex = allWords.length;
+                                            allWords.push(...words);
+                                            paragraphs.push({
+                                                startIndex: startIndex,
+                                                endIndex: allWords.length - 1,
+                                                words: words
+                                            });
+                                        }
+                                    }
+                                });
+                            } else {
+                                // Fallback: split by double newlines or treat as single block
+                                const text = doc.body.textContent || '';
+                                const textBlocks = text.split(/\n\s*\n/).filter(t => t.trim());
+
+                                textBlocks.forEach(block => {
+                                    let words = block.split(/\s+/).filter(w => w.length > 0);
+                                    // Split em-dashes into separate tokens
+                                    words = splitEmDashes(words);
+                                    if (words.length > 0) {
+                                        const startIndex = allWords.length;
+                                        allWords.push(...words);
+                                        paragraphs.push({
+                                            startIndex: startIndex,
+                                            endIndex: allWords.length - 1,
+                                            words: words
+                                        });
+                                    }
+                                });
+                            }
+                        }
+
+                        if (allWords.length > 0) {
+                            chapters.push({ title, words: allWords, paragraphs: paragraphs });
                         }
                     }
                 }
@@ -1376,23 +1607,74 @@
             state.chapters = chapters;
             state.currentChapterIndex = 0;
             state.words = chapters[0].words;
+            state.paragraphs = chapters[0].paragraphs || [];
         }
 
         async function loadPdf(file) {
             const arrayBuffer = await file.arrayBuffer();
             const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
             const chapters = [];
-            
+
             for (let i = 1; i <= pdf.numPages; i++) {
                 const page = await pdf.getPage(i);
                 const textContent = await page.getTextContent();
-                const text = textContent.items.map(item => item.str).join(' ');
-                const words = text.split(/\s+/).filter(w => w.length > 0);
-                
-                if (words.length > 0) {
+
+                // Group text items into paragraphs based on Y position changes
+                const paragraphs = [];
+                const allWords = [];
+                let currentParagraph = [];
+                let lastY = null;
+
+                textContent.items.forEach((item, idx) => {
+                    const currentY = item.transform[5];
+                    const text = item.str.trim();
+
+                    // Detect paragraph break by significant Y position change
+                    if (lastY !== null && Math.abs(currentY - lastY) > 15 && currentParagraph.length > 0) {
+                        const paraText = currentParagraph.join(' ');
+                        let words = paraText.split(/\s+/).filter(w => w.length > 0);
+                        // Split em-dashes into separate tokens
+                        words = splitEmDashes(words);
+                        if (words.length > 0) {
+                            const startIndex = allWords.length;
+                            allWords.push(...words);
+                            paragraphs.push({
+                                startIndex: startIndex,
+                                endIndex: allWords.length - 1,
+                                words: words
+                            });
+                        }
+                        currentParagraph = [];
+                    }
+
+                    if (text) {
+                        currentParagraph.push(text);
+                    }
+                    lastY = currentY;
+                });
+
+                // Add the last paragraph
+                if (currentParagraph.length > 0) {
+                    const paraText = currentParagraph.join(' ');
+                    let words = paraText.split(/\s+/).filter(w => w.length > 0);
+                    // Split em-dashes into separate tokens
+                    words = splitEmDashes(words);
+                    if (words.length > 0) {
+                        const startIndex = allWords.length;
+                        allWords.push(...words);
+                        paragraphs.push({
+                            startIndex: startIndex,
+                            endIndex: allWords.length - 1,
+                            words: words
+                        });
+                    }
+                }
+
+                if (allWords.length > 0) {
                     chapters.push({
                         title: `Page ${i}`,
-                        words: words
+                        words: allWords,
+                        paragraphs: paragraphs
                     });
                 }
             }
@@ -1404,6 +1686,7 @@
             state.chapters = chapters;
             state.currentChapterIndex = 0;
             state.words = chapters[0].words;
+            state.paragraphs = chapters[0].paragraphs || [];
         }
 
         function startReading() {
@@ -1412,15 +1695,58 @@
             chapterMenuBtn.classList.add('active');
             skipChapterBtn.classList.add('active');
             unloadBookBtn.classList.add('active');
-            
+
             // Show mobile controls on mobile devices
             if (window.innerWidth <= 768) {
                 mobileControls.classList.add('active');
             }
-            
+
+            // Initialize reading timer
+            state.readingStartTime = null;
+            state.totalReadingTime = 0;
+            updateTimerDisplay();
+
             renderChapterList();
             updateChapterInfo();
             updateDisplay();
+        }
+
+        // Reading Timer Functions
+        function startTimer() {
+            if (!state.readingStartTime) {
+                state.readingStartTime = Date.now();
+            }
+            if (!state.timerInterval) {
+                state.timerInterval = setInterval(updateTimerDisplay, 1000);
+            }
+        }
+
+        function pauseTimer() {
+            if (state.readingStartTime) {
+                state.totalReadingTime += Date.now() - state.readingStartTime;
+                state.readingStartTime = null;
+            }
+            if (state.timerInterval) {
+                clearInterval(state.timerInterval);
+                state.timerInterval = null;
+            }
+        }
+
+        function updateTimerDisplay() {
+            let totalSeconds = Math.floor(state.totalReadingTime / 1000);
+            if (state.readingStartTime) {
+                totalSeconds += Math.floor((Date.now() - state.readingStartTime) / 1000);
+            }
+
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            if (hours > 0) {
+                readingTimer.textContent = `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            } else {
+                readingTimer.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }
         }
 
         function renderChapterList() {
@@ -1453,16 +1779,17 @@
 
         function jumpToChapter(index) {
             if (index < 0 || index >= state.chapters.length) return;
-            
+
             stopReading();
             state.currentChapterIndex = index;
             state.words = state.chapters[state.currentChapterIndex].words;
+            state.paragraphs = state.chapters[state.currentChapterIndex].paragraphs || [];
             state.currentWordIndex = 0;
             state.isChapterEnd = false;
-            
+
             currentWord.style.display = 'block';
             chapterEnd.classList.remove('active');
-            
+
             updateChapterInfo();
             updateDisplay();
             renderChapterList();
@@ -1480,30 +1807,31 @@
         function skipChapterWhilePaused() {
             // Skip to next chapter without auto-starting
             stopReading();
-            
+
             if (state.currentChapterIndex < state.chapters.length - 1) {
                 state.currentChapterIndex++;
             } else {
                 state.currentChapterIndex = 0; // Loop to beginning
             }
-            
+
             state.words = state.chapters[state.currentChapterIndex].words;
+            state.paragraphs = state.chapters[state.currentChapterIndex].paragraphs || [];
             state.currentWordIndex = 0;
             state.contextSelectedWord = 0;
             state.isChapterEnd = false;
-            
+
             currentWord.style.display = 'block';
             chapterEnd.classList.remove('active');
-            
+
             updateChapterInfo();
             updateDisplay();
             renderChapterList();
-            
+
             // Update context viewer if it's open
             if (contextViewer.classList.contains('active')) {
                 renderContextText();
             }
-            
+
             // Keep paused state
             state.isPaused = true;
             currentWord.style.visibility = 'hidden';
@@ -1512,20 +1840,21 @@
         function unloadBook() {
             // Stop any active reading
             stopReading();
-            
+
             // Hide reader section and buttons
             readerSection.classList.remove('active');
             chapterMenuBtn.classList.remove('active');
             skipChapterBtn.classList.remove('active');
             unloadBookBtn.classList.remove('active');
             mobileControls.classList.remove('active');
-            
+
             // Close any open modals
             closeChapterMenu();
             hideContextViewer();
-            
+
             // Reset state
             state.words = [];
+            state.paragraphs = [];
             state.chapters = [];
             state.currentChapterIndex = 0;
             state.currentWordIndex = 0;
@@ -1533,10 +1862,18 @@
             state.isPaused = false;
             state.isChapterEnd = false;
             state.contextSelectedWord = null;
-            
+
+            // Reset timer
+            state.readingStartTime = null;
+            state.totalReadingTime = 0;
+            if (state.timerInterval) {
+                clearInterval(state.timerInterval);
+                state.timerInterval = null;
+            }
+
             // Clear file input
             fileInput.value = '';
-            
+
             // Show upload section
             uploadSection.style.display = 'block';
         }
@@ -1672,11 +2009,14 @@
 
         function startPlaying() {
             if (state.isChapterEnd) return;
-            
+
             state.isPlaying = true;
             state.isPaused = false;
             pauseOverlay.classList.remove('active');
-            
+
+            // Start timer
+            startTimer();
+
             // Start the word display loop
             playWord();
         }
@@ -1691,6 +2031,9 @@
                 clearTimeout(state.nextWordTimeout);
                 state.nextWordTimeout = null;
             }
+
+            // Pause timer
+            pauseTimer();
         }
 
         function togglePause() {
@@ -1766,44 +2109,107 @@
 
         function renderContextText() {
             contextTextContainer.innerHTML = '';
-            
-            // Render all words in the chapter
-            for (let i = 0; i < state.words.length; i++) {
-                const span = document.createElement('span');
-                span.className = 'context-word';
-                span.textContent = state.words[i] + ' ';
-                
-                if (i < state.currentWordIndex) {
-                    span.classList.add('read');
-                }
-                
-                if (i === state.contextSelectedWord) {
-                    span.classList.add('current');
-                    // Scroll to current word after rendering
+
+            // Check if we have paragraph structure
+            if (state.paragraphs && state.paragraphs.length > 0) {
+                // Render with paragraph structure
+                let currentScrollTarget = null;
+
+                state.paragraphs.forEach((para, paraIndex) => {
+                    const paraDiv = document.createElement('div');
+                    paraDiv.style.marginBottom = '1em';
+
+                    for (let i = para.startIndex; i <= para.endIndex; i++) {
+                        const span = document.createElement('span');
+                        span.className = 'context-word';
+                        span.textContent = state.words[i] + ' ';
+
+                        if (i < state.currentWordIndex) {
+                            span.classList.add('read');
+                        }
+
+                        if (i === state.contextSelectedWord) {
+                            span.classList.add('current');
+                            currentScrollTarget = span;
+                        }
+
+                        // Capture the index in the closure properly
+                        (function(wordIndex) {
+                            span.addEventListener('click', () => {
+                                // Remove previous current highlight
+                                const prevCurrent = contextTextContainer.querySelector('.context-word.current');
+                                if (prevCurrent) {
+                                    prevCurrent.classList.remove('current');
+                                }
+
+                                // Add new current highlight
+                                state.contextSelectedWord = wordIndex;
+                                span.classList.add('current');
+                                updateContextPosition();
+                            });
+                        })(i);
+
+                        paraDiv.appendChild(span);
+                    }
+
+                    contextTextContainer.appendChild(paraDiv);
+                });
+
+                // Scroll to current word after rendering
+                if (currentScrollTarget) {
                     setTimeout(() => {
-                        span.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        currentScrollTarget.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }, 100);
                 }
-                
-                // Capture the index in the closure properly
-                (function(wordIndex) {
-                    span.addEventListener('click', () => {
-                        // Remove previous current highlight
-                        const prevCurrent = contextTextContainer.querySelector('.context-word.current');
-                        if (prevCurrent) {
-                            prevCurrent.classList.remove('current');
-                        }
-                        
-                        // Add new current highlight
-                        state.contextSelectedWord = wordIndex;
+            } else {
+                // Fallback: Render all words without paragraph structure
+                let currentScrollTarget = null;
+
+                for (let i = 0; i < state.words.length; i++) {
+                    const span = document.createElement('span');
+                    span.className = 'context-word';
+                    span.textContent = state.words[i] + ' ';
+
+                    if (i < state.currentWordIndex) {
+                        span.classList.add('read');
+                    }
+
+                    if (i === state.contextSelectedWord) {
                         span.classList.add('current');
-                    });
-                })(i);
-                
-                contextTextContainer.appendChild(span);
+                        currentScrollTarget = span;
+                    }
+
+                    // Capture the index in the closure properly
+                    (function(wordIndex) {
+                        span.addEventListener('click', () => {
+                            // Remove previous current highlight
+                            const prevCurrent = contextTextContainer.querySelector('.context-word.current');
+                            if (prevCurrent) {
+                                prevCurrent.classList.remove('current');
+                            }
+
+                            // Add new current highlight
+                            state.contextSelectedWord = wordIndex;
+                            span.classList.add('current');
+                            updateContextPosition();
+                        });
+                    })(i);
+
+                    contextTextContainer.appendChild(span);
+                }
+
+                // Scroll to current word after rendering
+                if (currentScrollTarget) {
+                    setTimeout(() => {
+                        currentScrollTarget.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 100);
+                }
             }
-            
-            // Update position info
+
+            updateContextPosition();
+        }
+
+        function updateContextPosition() {
             const percentage = Math.round((state.contextSelectedWord / state.words.length) * 100);
             contextPosition.textContent = `Word ${state.contextSelectedWord + 1} of ${state.words.length} (${percentage}% through chapter)`;
         }
@@ -1812,30 +2218,29 @@
             // Jump by 100 words
             const step = 100;
             let newIndex = state.contextSelectedWord + (direction * step);
-            
+
             // Clamp to valid range
             newIndex = Math.max(0, Math.min(state.words.length - 1, newIndex));
-            
+
             // Remove previous highlight
             const prevCurrent = contextTextContainer.querySelector('.context-word.current');
             if (prevCurrent) {
                 prevCurrent.classList.remove('current');
             }
-            
+
             // Update selected word
             state.contextSelectedWord = newIndex;
-            
+
             // Find and highlight the new word
             const allWords = contextTextContainer.querySelectorAll('.context-word');
             if (allWords[newIndex]) {
                 allWords[newIndex].classList.add('current');
                 allWords[newIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
-            
+
             // Update position info
-            const percentage = Math.round((state.contextSelectedWord / state.words.length) * 100);
-            contextPosition.textContent = `Word ${state.contextSelectedWord + 1} of ${state.words.length} (${percentage}% through chapter)`;
-            
+            updateContextPosition();
+
             // Update button states
             contextPrevBtn.disabled = newIndex === 0;
             contextNextBtn.disabled = newIndex === state.words.length - 1;
@@ -1941,13 +2346,23 @@
         mobilePauseBtn.addEventListener('click', togglePause);
         mobileSlowBtn.addEventListener('click', () => changeSpeed(-25));
         mobileFastBtn.addEventListener('click', () => changeSpeed(25));
-        mobileSkipBtn.addEventListener('click', () => {
-            if (state.isPaused) {
+
+        // Keyboard hints as clickable controls (web version)
+        hintPause.addEventListener('click', togglePause);
+        hintSpeedUp.addEventListener('click', () => changeSpeed(25));
+        hintSlowDown.addEventListener('click', () => changeSpeed(-25));
+        hintSkip.addEventListener('click', () => {
+            if (state.isChapterEnd) {
+                nextChapter();
+            } else if (state.isPaused) {
                 skipChapterWhilePaused();
             } else {
                 skipChapter();
             }
         });
+
+        // Onboarding event listeners
+        onboardingStartBtn.addEventListener('click', hideOnboarding);
 
         // Auto-start reading when loaded
         setTimeout(() => {
